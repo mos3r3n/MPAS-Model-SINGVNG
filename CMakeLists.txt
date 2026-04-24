@@ -9,6 +9,9 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 set(CMAKE_DIRECTORY_LABELS ${PROJECT_NAME})
 include(GNUInstallDirs)
 
+# MPI flags
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DNOMPIMOD")
+
 # Options
 set(MPAS_ALL_CORES atmosphere init_atmosphere)
 set(MPAS_CORES atmosphere CACHE STRING "MPAS cores to build. Options: ${MPAS_ALL_CORES}")

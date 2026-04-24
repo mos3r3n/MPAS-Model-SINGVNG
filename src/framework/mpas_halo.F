@@ -535,6 +535,8 @@ module mpas_halo
     !-----------------------------------------------------------------------
     subroutine mpas_halo_exch_group_full_halo_exch(domain, groupName, withGPUAwareMPI, iErr)
 
+#ifdef _MPI
+#ifndef NOMPIMOD
 #ifdef MPAS_USE_MPI_F08
         use mpi_f08, only : MPI_Datatype, MPI_Comm
         use mpi_f08, only : MPI_REAL, MPI_DOUBLE_PRECISION, MPI_REQUEST_NULL, &
@@ -543,9 +545,18 @@ module mpas_halo
 #else
         use mpi
 #endif
+#endif
+#endif
+
         use mpas_derived_types, only : domain_type, mpas_halo_group, MPAS_HALO_REAL, MPAS_LOG_CRIT
         use mpas_pool_routines, only : mpas_pool_get_array
         use mpas_log, only : mpas_log_write
+
+#ifdef _MPI
+#ifdef NOMPIMOD
+      include 'mpif.h'
+#endif
+#endif
 
         ! Parameters
 #ifdef MPAS_USE_MPI_F08
