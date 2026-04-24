@@ -99,21 +99,16 @@ set(ATMOSPHERE_CORE_PHYSICS_WRF_SOURCES
 list(TRANSFORM ATMOSPHERE_CORE_PHYSICS_WRF_SOURCES PREPEND physics/physics_wrf/)
 
 
-set(ATMOSPHERE_CORE_PHYSICS_MMM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/physics/physics_mmm)
-
-if(NOT EXISTS ${ATMOSPHERE_CORE_PHYSICS_MMM_DIR})
-    set(PHYSICS_MMM_REPO_URL "https://github.com/ihan-chen/MMM-physics.git")
-    set(PHYSICS_MMM_REPO_TAG "20250618-CCRS-1")
-    execute_process(COMMAND git clone -b ${PHYSICS_MMM_REPO_TAG} ${PHYSICS_MMM_REPO_URL} ${ATMOSPHERE_CORE_PHYSICS_MMM_DIR}
-                    RESULT_VARIABLE GIT_CLONE_RESULT
-                    OUTPUT_VARIABLE GIT_CLONE_OUTPUT
-                    ERROR_VARIABLE GIT_CLONE_ERROR)
-    if(NOT GIT_CLONE_RESULT EQUAL 0)
-        message(FATAL_ERROR "Git clone failed with error: ${GIT_CLONE_ERROR}")
-    endif()
-
+set(CHECKOUT ${CMAKE_CURRENT_SOURCE_DIR}/tools/manage_externals/checkout_externals )
+execute_process( COMMAND
+                 ${CHECKOUT} --externals ${CMAKE_CURRENT_SOURCE_DIR}/Externals.cfg
+                 WORKING_DIRECTORY       ${CMAKE_CURRENT_SOURCE_DIR}/physics/
+                 RESULT_VARIABLE         MANAGE_EXTERNALS_STATUS
+                )
+if ( ${MANAGE_EXTERNALS_STATUS} AND NOT ${MANAGE_EXTERNALS_STATUS} EQUAL 0 )
+    message( FATAL_ERROR "Failed to checkout external repos via manage_externals" )
 else()
-    message(STATUS "Directory ${DIR_TO_CHECK} already exists, skipping clone")
+    message( STATUS "Finished checking out external repos via manage_externals" )
 endif()
 
 set(ATMOSPHERE_CORE_PHYSICS_MMM_SOURCES
@@ -132,23 +127,6 @@ set(ATMOSPHERE_CORE_PHYSICS_MMM_SOURCES
 )
 
 list(TRANSFORM ATMOSPHERE_CORE_PHYSICS_MMM_SOURCES PREPEND physics/physics_mmm/)
-
-set(ATMOSPHERE_CORE_PHYSICS_NOAA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/physics/physics_noaa/UGWP)
-
-if(NOT EXISTS ${ATMOSPHERE_CORE_PHYSICS_NOAA_DIR})
-    set(PHYSICS_NOAA_REPO_URL "https://github.com/NOAA-GSL/UGWP.git")
-    set(PHYSICS_NOAA_REPO_TAG "MPAS_20241223")
-    execute_process(COMMAND git clone -b ${PHYSICS_NOAA_REPO_TAG} ${PHYSICS_NOAA_REPO_URL} ${ATMOSPHERE_CORE_PHYSICS_NOAA_DIR}
-                    RESULT_VARIABLE GIT_CLONE_RESULT
-                    OUTPUT_VARIABLE GIT_CLONE_OUTPUT
-                    ERROR_VARIABLE GIT_CLONE_ERROR)
-    if(NOT GIT_CLONE_RESULT EQUAL 0)
-        message(FATAL_ERROR "Git clone failed with error: ${GIT_CLONE_ERROR}")
-    endif()
-
-else()
-    message(STATUS "Directory ${DIR_TO_CHECK} already exists, skipping clone")
-endif()
 
 set(ATMOSPHERE_CORE_PHYSICS_NOAA_SOURCES
     bl_ugwp.F
@@ -339,6 +317,7 @@ list(TRANSFORM ATMOSPHERE_CORE_DIAGNOSTIC_SOURCES PREPEND diagnostics/)
 # dynamics/
 set(ATMOSPHERE_CORE_DYNAMICS_SOURCES
     mpas_atm_boundaries.F
+    mpas_atm_dissipation_models.F
     mpas_atm_iau.F
     mpas_atm_time_integration.F)
 list(TRANSFORM ATMOSPHERE_CORE_DYNAMICS_SOURCES PREPEND dynamics/)
